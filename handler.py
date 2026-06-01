@@ -29,8 +29,15 @@ def _find_ckpt():
     env = os.environ.get("YMSVC_CHECKPOINT")
     if env and os.path.exists(env):
         return env
-    cands = glob.glob(os.path.join(REPO, "pretrained", "**", "*.pth"), recursive=True)
-    # отдаём предпочтение файлу с 'full'/'svc' в имени
+    # главный чекпойнт репозитория
+    preferred = os.path.join(REPO, "pretrained", "YingMusic-SVC-full.pt")
+    if os.path.exists(preferred):
+        return preferred
+    # запасной поиск: .pt/.pth/.ckpt/.safetensors, исключая сепаратор bs_roformer
+    cands = []
+    for ext in ("*.pt", "*.pth", "*.ckpt", "*.safetensors"):
+        cands += glob.glob(os.path.join(REPO, "pretrained", "**", ext), recursive=True)
+    cands = [c for c in cands if "roformer" not in os.path.basename(c).lower()]
     cands.sort(key=lambda p: (("full" not in p.lower()), ("svc" not in p.lower()), p))
     return cands[0] if cands else None
 
@@ -52,8 +59,9 @@ def handler(event):
         if not src_b64 or not ref_b64:
             return {"error": "need source_audio and reference_audio (base64)"}
         if not CKPT:
-            return {"error": "checkpoint .pth не найден в /app/YingMusic-SVC/pretrained",
-                    "config": CONFIG}
+            listing = glob.glob(os.path.join(REPO, "pretrained", "**", "*"), recursive=True)
+            return {"error": "checkpoint не найден в /app/YingMusic-SVC/pretrained",
+                    "config": CONFIG, "files_in_pretrained": listing[:50]}
 
         steps = int(inp.get("diffusion_steps", 100))
         wd = tempfile.mkdtemp()
