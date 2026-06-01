@@ -1,14 +1,14 @@
 # Serverless-воркер YingMusic-SVC — zero-shot пение голосом юзера (SOTA, дек 2025).
 # Research-код: 2-стадийный пайплайн, веса с HuggingFace. Возможны итерации отладки.
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
-# rebuild trigger 1
+
 # Неинтерактивный apt: иначе tzdata спрашивает регион и сборка виsnет
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
-# Системные зависимости (репо требует sox + ffmpeg)
+# Системные зависимости. build-essential — компиляторы (нужны для webrtcvad и др. C-расширений).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git ffmpeg sox libsox-fmt-all tzdata \
+        git ffmpeg sox libsox-fmt-all tzdata build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -26,4 +26,3 @@ RUN python -c "import runpod; print('RUNPOD OK', runpod.__version__)"
 COPY handler.py /app/YingMusic-SVC/handler.py
 ENTRYPOINT []
 CMD ["sh", "-c", "python -u /app/YingMusic-SVC/handler.py 2>&1"]
-# rebuild 1
