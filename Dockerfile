@@ -2,8 +2,14 @@
 # Research-код: 2-стадийный пайплайн, веса с HuggingFace. Возможны итерации отладки.
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
+# Неинтерактивный apt: иначе tzdata спрашивает регион и сборка виsnет
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
 # Системные зависимости (репо требует sox + ffmpeg)
-RUN apt-get update && apt-get install -y git ffmpeg sox libsox-fmt-all && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git ffmpeg sox libsox-fmt-all tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 RUN git clone https://github.com/GiantAILab/YingMusic-SVC.git /app/YingMusic-SVC
