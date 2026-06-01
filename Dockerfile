@@ -8,7 +8,7 @@ ENV TZ=Etc/UTC
 
 # Системные зависимости. build-essential — компиляторы (нужны для webrtcvad и др. C-расширений).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git ffmpeg sox libsox-fmt-all tzdata build-essential python3-dev \
+        git ffmpeg sox libsox-dev libsox-fmt-all tzdata build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
