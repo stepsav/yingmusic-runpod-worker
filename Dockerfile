@@ -26,3 +26,4 @@ RUN python -c "import runpod; print('RUNPOD OK', runpod.__version__)"
 COPY handler.py /app/YingMusic-SVC/handler.py
 ENTRYPOINT []
 CMD ["sh", "-c", "python -u /app/YingMusic-SVC/handler.py 2>&1"]
+# rebuild 1
